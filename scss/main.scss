@@ -1,0 +1,21 @@
+html, body, #map-canvas { 
+  height: 100%; 
+  margin: 0; 
+  padding: 0;
+}
+
+*:focus {
+  outline: 0;
+}
+
+.search-bar {
+  margin: 0 auto;
+  border: 0px;
+  width: 100%;
+  height: 40px;
+  font-size: 14px;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 300;
+  padding-left: 50px;
+}
+
