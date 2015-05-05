@@ -5,42 +5,13 @@ $(document).ready(function(){
   var mainCoordinates = {}; /*coords of mainMarker*/
   var searchedMarkers = []; /*a log of all previously & currently searched markers*/
   var busData;
-
-  // Sets All Markers in Array on Map
-  // function setAllMap(map) {
-  //   console.log('set map')
-  //   for (var i = 0; i < markers.length; i++) {
-  //     markers[i].setMap(map);
-  //   }
-  // }
-
-  // Show Markers 
-  // function showMarkers() {
-  //   console.log('markers shown');
-  //   setAllMap(map);
-  // }
-  // Clear Markers
-  // function clearMarkers(){
-  //   console.log('markers cleared')
-  //   setAllMap(null);
-  // }
-
-
-  // var clearInput = function(){
-  //   $('#search-input').click(function(){
-  //     $('#search-input').val('');
-  //   })
-  // }
+  var busMarkers = [];
 
   // GET Request for Bus Stops within range
   var getBusStops = function(lat, long){
     console.log('getBusStops()')
-    console.log(lat)
-    console.log(long)
-    var southWestCoord = String(lat + 0.003) + ',' + String(long + 0.003)
-    var northEastCoord = String(lat - 0.003) + ',' + String(long - 0.003)
-    console.log(northEastCoord)
-    console.log(southWestCoord)
+    var southWestCoord = String(lat + 0.003) + ',' + String(long + 0.003);
+    var northEastCoord = String(lat - 0.003) + ',' + String(long - 0.003);
     $.ajax({
       url: 'http://digitaslbi-id-test.herokuapp.com/bus-stops?northEast=' + northEastCoord + '&southWest=' + southWestCoord,
       data: {format: 'json'},
@@ -48,13 +19,23 @@ $(document).ready(function(){
       type: 'GET',
       success: function(data){
         busData = data.markers;
-        console.log(data);
-        // $.each(busData, function(index, value){
-        //   busStopMarkers[value.id] = {
-        //     lat: value.lat,
-        //     lng: value.lng
-        //   }
-        // })
+        console.log(busData);
+      }
+    })
+    .done(function(){
+      for (var i = 0; i < busData.length; i++) {
+        busLatLng = new google.maps.LatLng(busData[i].lat,busData[i].lng);
+        busMarker = new google.maps.Marker({
+          position: busLatLng,
+          map: map,
+          animation: google.maps.Animation.DROP,
+          title: busData[i].id
+        });
+        busMarkers.push(busMarker);
+        busInfoWindow = new google.maps.InfoWindow();
+        busInfoWindow.setContent('hi');
+        busInfoWindow.open(map, busMarker);
+        console.log(busMarker)
       }
     })
   }
@@ -107,12 +88,12 @@ $(document).ready(function(){
       disableDefaultUI: true,
       streetViewControl: true
     };
-    var map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+    map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
     var input = (document.getElementById('search-input'));
     var autocomplete = new google.maps.places.Autocomplete(input);
     autocomplete.bindTo('bounds', map);
     var mainInfowindow = new google.maps.InfoWindow();
-  
+   
     google.maps.event.addListener(autocomplete, 'place_changed', function(){
       // Resetting mainMarker
       if (mainMarker) { mainMarker.setVisible(false); }
@@ -146,10 +127,11 @@ $(document).ready(function(){
         map.setCenter(place.geometry.location);
         map.setZoom(17);
       }
+
       mainMarker.setPosition(place.geometry.location);
       mainMarker.setVisible(true);
       searchedMarkers.push(mainMarker);
-      console.log(searchedMarkers);
+
       var address = '';
       if (place.address_components) {
         address = [
@@ -158,6 +140,7 @@ $(document).ready(function(){
           (place.address_components[2] && place.address_components[2].short_name || '')
         ].join(' ');
       }
+
       mainInfowindow.setContent('<div><strong>' + place.name + '</strong><br>' + '<i>' + place.formatted_address + '</i><br>' + address);
       mainInfowindow.open(map, mainMarker);
     });
