@@ -1,4 +1,6 @@
 $(document).ready(function(){
+  $('.bus-info').draggable().resizable();
+
   // Declaring variables
   var map;
   var mainMarker; /*marker that centers the map*/
@@ -30,6 +32,7 @@ $(document).ready(function(){
           animation: google.maps.Animation.DROP,
           title: busData[i].id
         });
+        busMarkers.push(busMarker);
         busInfoWindow = new google.maps.InfoWindow();
         busInfoWindow.setContent('<div><strong>' + busMarker.title + '</strong><br>Towards: ' + busData[i].towards + '<br>' + busData[i].direction.toUpperCase());
         busInfoWindow.open(map, busMarker);
@@ -83,7 +86,9 @@ $(document).ready(function(){
       styles: styles,
       backgroundColor: "#FFFC78",
       disableDefaultUI: true,
-      streetViewControl: true
+      streetViewControl: true,
+      zoomControl: true,
+      scaleControl: true
     };
     map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
     var input = (document.getElementById('search-input'));
@@ -95,6 +100,7 @@ $(document).ready(function(){
       // Resetting mainMarker
       if (mainMarker) { mainMarker.setVisible(false); }
       mainInfowindow.close();
+      busMarkers = [];
       mainCoordinates = {};
       mainMarker = '';
 

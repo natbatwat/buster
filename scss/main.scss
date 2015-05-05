@@ -12,7 +12,7 @@ html, body {
 .site-container {
   height: 100%;
   #map-canvas {
-    height: 90%;
+    height: 95%;
     overflow: hidden;
   }
 }
@@ -21,7 +21,7 @@ input#search-input {
   margin: 0 auto;
   border: 0px;
   width: 100%;
-  height: 40px;
+  height: 5%;
   font-size: 14px;
   font-family: 'Roboto', sans-serif;
   font-weight: 300;
@@ -37,4 +37,8 @@ input#search-input {
   height: 40%;
   width: 30%;
   z-index: 9999;
+}
+
+.bus-info:hover {
+  cursor: move;
 }
