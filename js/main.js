@@ -1,9 +1,9 @@
 $(document).ready(function(){
   // Declaring variables
   var map;
-  var searchMarkers = [];
-  var mainMarker;
-  var mainCoordinates = {};
+  var mainMarker; /*marker that centers the map*/
+  var mainCoordinates = {}; /*coords of mainMarker*/
+  var searchedMarkers = []; /*a log of all previously & currently searched markers*/
 
   // Sets All Markers in Array on Map
   // function setAllMap(map) {
@@ -98,42 +98,28 @@ $(document).ready(function(){
     var autocomplete = new google.maps.places.Autocomplete(input);
     autocomplete.bindTo('bounds', map);
     var mainInfowindow = new google.maps.InfoWindow();
-
-    // function searchAddress() {
-    //   console.log('searchAddress()')
-    //   var address = document.getElementById('search-input').value;
-    //   geocoder.geocode({'address': address, 'region': 'GB'}, function(results, status) {
-    //     console.log('geocode results:' + results)
-    //     if (status == google.maps.GeocoderStatus.OK) {
-    //       map.setCenter(results[0].geometry.location);
-    //       var marker = new google.maps.Marker({
-    //           map: map,
-    //           animation: google.maps.Animation.DROP,
-    //           position: results[0].geometry.location,
-    //           title: results[0].geometry.formatted_address
-    //       });
-    //       searchMarkers.push(marker);
-    //       console.log('search markerss: ' + searchMarkers)
-    //     } else {
-    //       alert('Goshdarnit! We could not find your coordinates because: ' + status);
-    //     }
-    //   });
-    // }
   
     google.maps.event.addListener(autocomplete, 'place_changed', function(){
+      // Resetting mainMarker
       if (mainMarker) { mainMarker.setVisible(false); }
       mainInfowindow.close();
-      searchMarkers = [];
+      mainCoordinates = {};
+      mainMarker = '';
+
       var place = autocomplete.getPlace();
-      console.log(place)
+      
+      // Saving coordinates of mainMarker in mainCoordinates 
       mainCoordinates["latCoord"] = place.geometry.location.A
       mainCoordinates["longCoord"] = place.geometry.location.A
-      console.log(mainCoordinates)
+      
+      // Creation/ Reassignment of mainMarker
       mainMarker = new google.maps.Marker({
         map: map,
         animation: google.maps.Animation.DROP,
         title: place.geometry.formatted_address
       });
+
+      
       if (!place.geometry) {
         window.alert("Oopsie dasiy! Please make sure you typed something!");
         return;
@@ -146,8 +132,8 @@ $(document).ready(function(){
       }
       mainMarker.setPosition(place.geometry.location);
       mainMarker.setVisible(true);
-      searchMarkers.push(mainMarker);
-      console.log(searchMarkers)
+      searchedMarkers.push(mainMarker);
+      console.log(searchedMarkers)
       var address = '';
       if (place.address_components) {
         address = [
