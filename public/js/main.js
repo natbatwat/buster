@@ -1,5 +1,4 @@
 $(document).ready(function(){
-  $('.bus-info').draggable().resizable();
 
   // Declaring variables
   var map;
@@ -8,6 +7,32 @@ $(document).ready(function(){
   var searchedMarkers = []; /*a log of all previously & currently searched markers*/
   var busData;
   var busMarkers = [];
+
+  function setAllMap(map) {
+    for (var i = 0; i < busMarkers.length; i++) {
+      busMarkers[i].setMap(map);
+    }
+  }
+  function addBusMarkers() {
+    for (var i = 0; i < busData.length; i++) {
+      busLatLng = new google.maps.LatLng(busData[i].lat,busData[i].lng);
+      newBusMarker = new google.maps.Marker({
+        position: busLatLng,
+        map: map,
+        animation: google.maps.Animation.DROP,
+        title: busData[i].id
+      });
+      busMarkers.push(newBusMarker);
+      // busInfoWindow = new google.maps.InfoWindow();
+      // busInfoWindow.setContent('<div><strong>' + newBusMarker.title + '</strong><br>Towards: ' + busData[i].towards + '<br>' + busData[i].direction.toUpperCase());
+    }
+
+  }
+  function deleteBusMarkers() {
+    setAllMap(null);
+    busMarkers = [];
+  }
+
 
   // GET Request for Bus Stops within range
   var getBusStops = function(lat, long){
@@ -24,19 +49,7 @@ $(document).ready(function(){
       }
     })
     .done(function(){
-      for (var i = 0; i < busData.length; i++) {
-        busLatLng = new google.maps.LatLng(busData[i].lat,busData[i].lng);
-        busMarker = new google.maps.Marker({
-          position: busLatLng,
-          map: map,
-          animation: google.maps.Animation.DROP,
-          title: busData[i].id
-        });
-        busMarkers.push(busMarker);
-        busInfoWindow = new google.maps.InfoWindow();
-        busInfoWindow.setContent('<div><strong>' + busMarker.title + '</strong><br>Towards: ' + busData[i].towards + '<br>' + busData[i].direction.toUpperCase());
-        busInfoWindow.open(map, busMarker);
-      }
+      addBusMarkers();
     })
   }
 
@@ -100,7 +113,7 @@ $(document).ready(function(){
       // Resetting mainMarker
       if (mainMarker) { mainMarker.setVisible(false); }
       mainInfowindow.close();
-      busMarkers = [];
+      deleteBusMarkers();
       mainCoordinates = {};
       mainMarker = '';
 
