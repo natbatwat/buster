@@ -8,31 +8,41 @@ $(document).ready(function(){
   var busData;
   var busMarkers = [];
 
-  function setAllMap(map) {
-    for (var i = 0; i < busMarkers.length; i++) {
+  function setAllMap(map){
+    for(var i = 0; i < busMarkers.length; i++){
       busMarkers[i].setMap(map);
     }
   }
-  function addBusMarkers() {
-    for (var i = 0; i < busData.length; i++) {
-      busLatLng = new google.maps.LatLng(busData[i].lat,busData[i].lng);
-      newBusMarker = new google.maps.Marker({
+  function addBusMarkers(){
+    for(var i = 0; i < busData.length; i++){
+      var busLatLng = new google.maps.LatLng(busData[i].lat,busData[i].lng);
+      var newBusMarker = new google.maps.Marker({
         position: busLatLng,
         map: map,
         animation: google.maps.Animation.DROP,
         title: busData[i].id
       });
       busMarkers.push(newBusMarker);
-      // busInfoWindow = new google.maps.InfoWindow();
-      // busInfoWindow.setContent('<div><strong>' + newBusMarker.title + '</strong><br>Towards: ' + busData[i].towards + '<br>' + busData[i].direction.toUpperCase());
-    }
+      var busInfoWindow = new google.maps.InfoWindow({maxWidth: 100});
 
+      google.maps.event.addListener(newBusMarker,'click', (function(newBusMarker,busInfoWindow){ 
+        return function(){
+          busInfoWindow.setContent(newBusMarker.title);
+          busInfoWindow.open(map,newBusMarker);
+          getDepartureTimes(newBusMarker);
+        };
+      })(newBusMarker,busInfoWindow));  
+    }
   }
+
   function deleteBusMarkers() {
     setAllMap(null);
     busMarkers = [];
   }
 
+  var getDepartureTimes = function(marker){
+    console.log(marker)
+  }
 
   // GET Request for Bus Stops within range
   var getBusStops = function(lat, long){
@@ -118,13 +128,11 @@ $(document).ready(function(){
       mainMarker = '';
 
       var place = autocomplete.getPlace();
-      console.log(place)
       // Saving coordinates of mainMarker in mainCoordinates 
       mainCoordinates["latCoord"] = place.geometry.location.A
       mainCoordinates["longCoord"] = place.geometry.location.F
 
-      getBusStops(mainCoordinates.latCoord, mainCoordinates.longCoord);
-
+      
       // Creation/ Reassignment of mainMarker
       mainMarker = new google.maps.Marker({
         map: map,
@@ -138,15 +146,20 @@ $(document).ready(function(){
         return;
       }
       if (place.geometry.viewport) {
-        map.fitBounds(place.geometry.viewport);
+        map.setCenter(place.geometry.location);
+        map.setZoom(18);
       } else {
         map.setCenter(place.geometry.location);
-        map.setZoom(17);
+        map.setZoom(18);
       }
 
       mainMarker.setPosition(place.geometry.location);
       mainMarker.setVisible(true);
       searchedMarkers.push(mainMarker);
+
+      getBusStops(mainCoordinates.latCoord, mainCoordinates.longCoord);
+      map.setZoom(18);
+      map.setCenter(mainMarker.position);
 
       var address = '';
       if (place.address_components) {
