@@ -29,3 +29,12 @@ input#search-input {
   display: inline-block;
 }
 
+.bus-info {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background-color: rgba(255,255,255,0.5);
+  height: 40%;
+  width: 30%;
+  z-index: 9999;
+}

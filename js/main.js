@@ -19,7 +19,6 @@ $(document).ready(function(){
       type: 'GET',
       success: function(data){
         busData = data.markers;
-        console.log(busData);
       }
     })
     .done(function(){
@@ -31,11 +30,9 @@ $(document).ready(function(){
           animation: google.maps.Animation.DROP,
           title: busData[i].id
         });
-        busMarkers.push(busMarker);
         busInfoWindow = new google.maps.InfoWindow();
-        busInfoWindow.setContent('hi');
+        busInfoWindow.setContent('<div><strong>' + busMarker.title + '</strong><br>Towards: ' + busData[i].towards + '<br>' + busData[i].direction.toUpperCase());
         busInfoWindow.open(map, busMarker);
-        console.log(busMarker)
       }
     })
   }
