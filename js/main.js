@@ -4,6 +4,7 @@ $(document).ready(function(){
   var mainMarker; /*marker that centers the map*/
   var mainCoordinates = {}; /*coords of mainMarker*/
   var searchedMarkers = []; /*a log of all previously & currently searched markers*/
+  var busData;
 
   // Sets All Markers in Array on Map
   // function setAllMap(map) {
@@ -23,20 +24,40 @@ $(document).ready(function(){
   //   console.log('markers cleared')
   //   setAllMap(null);
   // }
-  // var getBusStops = function(locLat, locLong){
-  //   console.log(locLat);
-  //   console.log(locLong);
-  //   northEastCoord = String(locLat + 0.005) + ',' + String(locLong + 0.005)
-  //   southWestCoord = String(locLat - 0.005) + ',' + String(locLong - 0.005)
-  //   console.log(northEastCoord)
-  //   console.log(southWestCoord)
-  // }
+
 
   // var clearInput = function(){
   //   $('#search-input').click(function(){
   //     $('#search-input').val('');
   //   })
   // }
+
+  // GET Request for Bus Stops within range
+  var getBusStops = function(lat, long){
+    console.log('getBusStops()')
+    console.log(lat)
+    console.log(long)
+    var southWestCoord = String(lat + 0.003) + ',' + String(long + 0.003)
+    var northEastCoord = String(lat - 0.003) + ',' + String(long - 0.003)
+    console.log(northEastCoord)
+    console.log(southWestCoord)
+    $.ajax({
+      url: 'http://digitaslbi-id-test.herokuapp.com/bus-stops?northEast=' + northEastCoord + '&southWest=' + southWestCoord,
+      data: {format: 'json'},
+      dataType: 'jsonp',
+      type: 'GET',
+      success: function(data){
+        busData = data.markers;
+        console.log(data);
+        // $.each(busData, function(index, value){
+        //   busStopMarkers[value.id] = {
+        //     lat: value.lat,
+        //     lng: value.lng
+        //   }
+        // })
+      }
+    })
+  }
 
   // GMaps Styles
   var styles = [
@@ -77,13 +98,6 @@ $(document).ready(function(){
     console.log('initialize()');
 
     var geocoder = new google.maps.Geocoder();
-
-    // var geocodeRequestObj = {
-    //   address: string,
-    //   location: LatLng,
-    //   bounds: LatLngBounds,
-    //   region: 'GB'
-    // }
     var centerLocation = new google.maps.LatLng(51.5008, -0.1090) /*London*/
     var mapOptions = {
       center: centerLocation,
@@ -107,11 +121,13 @@ $(document).ready(function(){
       mainMarker = '';
 
       var place = autocomplete.getPlace();
-      
+      console.log(place)
       // Saving coordinates of mainMarker in mainCoordinates 
       mainCoordinates["latCoord"] = place.geometry.location.A
-      mainCoordinates["longCoord"] = place.geometry.location.A
-      
+      mainCoordinates["longCoord"] = place.geometry.location.F
+
+      getBusStops(mainCoordinates.latCoord, mainCoordinates.longCoord);
+
       // Creation/ Reassignment of mainMarker
       mainMarker = new google.maps.Marker({
         map: map,
@@ -119,7 +135,7 @@ $(document).ready(function(){
         title: place.geometry.formatted_address
       });
 
-      
+
       if (!place.geometry) {
         window.alert("Oopsie dasiy! Please make sure you typed something!");
         return;
@@ -133,7 +149,7 @@ $(document).ready(function(){
       mainMarker.setPosition(place.geometry.location);
       mainMarker.setVisible(true);
       searchedMarkers.push(mainMarker);
-      console.log(searchedMarkers)
+      console.log(searchedMarkers);
       var address = '';
       if (place.address_components) {
         address = [
@@ -144,37 +160,8 @@ $(document).ready(function(){
       }
       mainInfowindow.setContent('<div><strong>' + place.name + '</strong><br>' + '<i>' + place.formatted_address + '</i><br>' + address);
       mainInfowindow.open(map, mainMarker);
-
-      // var resultLat = locationResults[0].geometry.location.A
-      // var resultLong = locationResults[0].geometry.location.F
-      // $.when(searchAddress()).done(getBusStops(resultLat, resultLong), clearInput())
-      // // AJAX request to Digitas API
-      // $.ajax({
-      //   url: 'http://digitaslbi-id-test.herokuapp.com/bus-stops?northEast=' + northEastCoord + '&southWest=' + southWestCoord,
-      //   data: { format: 'json' },
-      //   dataType: 'jsonp',
-      //   type: 'GET',
-      //   success: function(data){
-      //     busData = data.markers;
-      //     console.log(busData);
-      //     $.each(busData, function(index, value){
-      //       busStopMarkers[value.id] = {
-      //         lat: value.lat,
-      //         lng: value.lng
-      //       }
-      //       var latlng = new google.maps.LatLng(value.lat,value.lng);
-      //       var marker = new google.maps.Marker({
-      //         position: latlng,
-      //         map: map,
-      //         title: value.id
-      //       }); 
-      //       marker.setVisible(true);
-      //     })
-      //   }
-      // })
-      // .done(function(){
-      // })
     });
   }
   google.maps.event.addDomListener(window, 'load', initialize);
+  
 })
