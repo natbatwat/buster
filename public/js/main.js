@@ -7,6 +7,7 @@ $(document).ready(function(){
   var searchedMarkers = []; /*a log of all previously & currently searched markers*/
   var busData;
   var busMarkers = [];
+  var busStopData = {};
 
   function setAllMap(map){
     for(var i = 0; i < busMarkers.length; i++){
@@ -42,7 +43,30 @@ $(document).ready(function(){
   }
 
   var getDepartureTimes = function(marker){
+    console.log('getDepartureTimes()')
     console.log(marker)
+    $.ajax({
+      url: 'http://digitaslbi-id-test.herokuapp.com/bus-stops' + marker.title,
+      data: {format: 'json'},
+      dataType: 'jsonp',
+      type: 'GET',
+      success: function(data){
+        busStopData = data.arrivals;
+        console.log(busStopData);
+        for(var i = 0; i < busStopData.length; i++){
+          var estimatedWait = busData[i].estimatedWait
+          var scheduledTime = busData[i].scheduledTime
+          var isCancelled = busData[i].isCancelled
+          var destination = busData[i].destination
+          busStopData.push([estimatedWait, scheduledTime, isCancelled, destination]);
+          console.log(busStopData)
+          busInfo = "<p>" + estimatedWait + "</p>" + "<p>" + scheduledTime + "</p>" + "<p>" + destination + "</p>"
+          $('.bus-info').append(busInfo)
+        }
+      }
+    })
+    .done(function(){
+    })
   }
 
   // GET Request for Bus Stops within range
