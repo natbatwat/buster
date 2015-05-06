@@ -14,6 +14,7 @@ $(document).ready(function(){
     }
   }
   function addBusMarkers(){
+    console.log('addBusMarkers()')
     for(var i = 0; i < busData.length; i++){
       var busLatLng = new google.maps.LatLng(busData[i].lat,busData[i].lng);
       var newBusMarker = new google.maps.Marker({
@@ -24,7 +25,7 @@ $(document).ready(function(){
       });
       busMarkers.push(newBusMarker);
       var busInfoWindow = new google.maps.InfoWindow({maxWidth: 100});
-
+      console.log(newBusMarker)
       google.maps.event.addListener(newBusMarker,'click', (function(newBusMarker,busInfoWindow){ 
         return function(){
           busInfoWindow.setContent(newBusMarker.title);
@@ -56,6 +57,7 @@ $(document).ready(function(){
       type: 'GET',
       success: function(data){
         busData = data.markers;
+        console.log(busData);
       }
     })
     .done(function(){
